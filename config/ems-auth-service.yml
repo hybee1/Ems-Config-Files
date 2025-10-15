@@ -11,8 +11,8 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.int}
@@ -34,31 +34,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate  # Options: create, create-drop, validate, update
-    show-sql: true  # Optional: shows SQL queries in the log
-    generate-ddl: true  # Optional: generates DDL scripts automatically
+      ddl-auto: validate
+    show-sql: true
+    generate-ddl: true
 
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-
-#eureka:
-#  instance:
-#    prefer-ip-address: true
-#    instance-id: ${spring.application.name}:${random.int}
-#    lease-renewal-interval-in-seconds: 20
-#    lease-expiration-duration-in-seconds: 60
-
-#  client:
-#    healthcheck:
-#      enabled: true
-#    service-url:
-#      defaultZone: ${EUREKA_URL}  # URL of your Eureka server
-#    registerWithEureka: true
-#    fetchRegistry: true
-#    registry-fetch-interval-seconds: 5
-
 
 management:
   tracing:

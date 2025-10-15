@@ -1,6 +1,6 @@
 server:
   port: ${EMPLOYEE_SERVER_PORT}
-  address: 0.0.0.0
+
 
 logging:
   level:
@@ -12,8 +12,8 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.int}
@@ -34,9 +34,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate  # Options: create, create-drop, validate, update
-    show-sql: true  # Optional: shows SQL queries in the log
-    generate-ddl: true  # Optional: generates DDL scripts automatically
+      ddl-auto: validate
+    show-sql: true
+    generate-ddl: true
 
     properties:
       hibernate:

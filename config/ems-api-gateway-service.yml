@@ -2,8 +2,8 @@
 spring:
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
       discovery:
         enabled: true
         instance-id: ${spring.application.name}
@@ -11,7 +11,7 @@ spring:
     gateway:
 
       httpclient:
-        connect-timeout: 2000  # 2 seconds
+        connect-timeout: 2000
         response-timeout: 5s
         pool:
           max-connections: 100
@@ -37,7 +37,7 @@ spring:
             - name: CircuitBreaker
               args:
                 name: authCircuitBreaker
-                fallbackUri: forward:/auth-fallback
+                fallbackUri: forward:/fallback/auth
 
             - name: Retry
               args:
@@ -56,7 +56,7 @@ spring:
             - name: CircuitBreaker
               args:
                 name: authCircuitBreaker
-                fallbackUri: forward:/auth-fallback
+                fallbackUri: forward:/fallback/employee
 
             - name: Retry
               args:
@@ -74,31 +74,14 @@ spring:
             - name: CircuitBreaker
               args:
                 name: authCircuitBreaker
-                fallbackUri: forward:/auth-fallback
+                fallbackUri: forward:/fallback/department
 
             - name: Retry
               args:
                 retries: 3
                 statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
                 methods: GET, POST
-        #--------------------------------------------------------------------------------------------------
-        - id: event-tracking-route-for-ems-event-tracking-service
-          uri: lb://${EVENT_TRACKING_APP_NAME}  # destination service (ems-event-tracking-service-backend)
-          predicates:
-            - Path=/events/**
-          filters:
-            - PrefixPath=/api
 
-            - name: CircuitBreaker
-              args:
-                name: authCircuitBreaker
-                fallbackUri: forward:/auth-fallback
-
-            - name: Retry
-              args:
-                retries: 3
-                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
-                methods: GET, POST
 
   main:
     allow-bean-definition-overriding: true

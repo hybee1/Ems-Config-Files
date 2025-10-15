@@ -1,0 +1,79 @@
+server:
+  port: ${EMPLOYEE_SERVER_PORT}
+  address: 0.0.0.0
+
+logging:
+  level:
+    org:
+      hibernate: TRACE
+      springframework: TRACE
+
+spring:
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${random.int}
+
+  liquibase:
+    enabled: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  datasource:
+    url: ${EMPLOYEE_DB_URL}
+    username: ${EMPLOYEE_DB_USERNAME}
+    password: ${EMPLOYEE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Options: create, create-drop, validate, update
+    show-sql: true  # Optional: shows SQL queries in the log
+    generate-ddl: true  # Optional: generates DDL scripts automatically
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+
+  main:
+    allow-bean-definition-overriding: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST_NAME}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+    listener:
+      simple:
+        concurrency: ${RABBITMQ_CONCURRENCY}
+        max-concurrency: ${RABBITMQ_MAX_CONCURRENCY}
+        acknowledge-mode: ${RABBITMQ_ACKNOWLEDGE_MODE}
+    publisher-confirm-type: ${RABBITMQ_PUBLISHER_CONFIRM_TYPE}
+    publisher-returns: ${RABBITMQ_PUBLISHER_RETURNS}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+  endpoint:
+    health:
+      show-details: always
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+
+

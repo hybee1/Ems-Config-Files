@@ -1,0 +1,133 @@
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}
+
+    gateway:
+
+      httpclient:
+        connect-timeout: 2000  # 2 seconds
+        response-timeout: 5s
+        pool:
+          max-connections: 100
+          max-idle-time: 20s
+          eviction-interval: 30s
+          wiretap: false
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # receive predicate from client, add prefix-path in front of predicate, then send to uri
+        # Route for authentication/login, authentication/register, etc.
+        - id: login-and-register-for-ems-auth-service
+          uri: lb://${AUTH_APP_NAME}  # destination service (auth-backend)
+          predicates:
+            - Path=/authentication/**
+          filters:
+            - PrefixPath=/api
+
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/auth-fallback
+
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+                methods: GET, POST
+
+#--------------------------------------------------------------------------------------------------
+        - id: employee-route-for-ems-employee-service
+          uri: lb://${EMPLOYEE_APP_NAME}  # destination service (employee-service-backend)
+          predicates:
+            - Path=/employee/**
+          filters:
+            - PrefixPath=/api
+
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/auth-fallback
+
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+                methods: GET, POST
+#--------------------------------------------------------------------------------------------------
+        - id: department-route-for-ems-employee-service
+          uri: lb://${EMPLOYEE_APP_NAME}  # destination service (employee-service-backend)
+          predicates:
+            - Path=/department/**
+          filters:
+            - PrefixPath=/api
+
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/auth-fallback
+
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+                methods: GET, POST
+        #--------------------------------------------------------------------------------------------------
+        - id: event-tracking-route-for-ems-event-tracking-service
+          uri: lb://${EVENT_TRACKING_APP_NAME}  # destination service (ems-event-tracking-service-backend)
+          predicates:
+            - Path=/events/**
+          filters:
+            - PrefixPath=/api
+
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/auth-fallback
+
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY, GATEWAY_TIMEOUT, SERVICE_UNAVAILABLE
+                methods: GET, POST
+
+  main:
+    allow-bean-definition-overriding: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health,info,env,loggers,routes  # expose these over HTTP
+  endpoint:
+    gateway:
+      enabled: true
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      authCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-exception: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client.HttpClient: DEBUG

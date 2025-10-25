@@ -1,5 +1,3 @@
-server:
-  port: ${EMPLOYEE_SERVER_PORT}
 
 
 logging:
@@ -12,11 +10,13 @@ spring:
 
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.int}
+        prefer-ip-address: true
+        register: true
 
   liquibase:
     enabled: false
@@ -28,8 +28,8 @@ spring:
 
   datasource:
     url: ${EMPLOYEE_DB_URL}
-    username: ${EMPLOYEE_DB_USERNAME}
-    password: ${EMPLOYEE_DB_PASSWORD}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -74,6 +74,10 @@ management:
     web:
       exposure:
         include: health,info
+
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_TRACING_ENDPOINT}
 
 
 

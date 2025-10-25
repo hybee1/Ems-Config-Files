@@ -1,0 +1,83 @@
+
+
+logging:
+  level:
+    org:
+      hibernate: TRACE
+      springframework: TRACE
+
+spring:
+
+  cloud:
+    consul:
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${random.int}
+        prefer-ip-address: true
+        register: true
+
+  liquibase:
+    enabled: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  datasource:
+    url: ${EMPLOYEE_DB_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    generate-ddl: true
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+
+  main:
+    allow-bean-definition-overriding: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST_NAME}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+    listener:
+      simple:
+        concurrency: ${RABBITMQ_CONCURRENCY}
+        max-concurrency: ${RABBITMQ_MAX_CONCURRENCY}
+        acknowledge-mode: ${RABBITMQ_ACKNOWLEDGE_MODE}
+    publisher-confirm-type: ${RABBITMQ_PUBLISHER_CONFIRM_TYPE}
+    publisher-returns: ${RABBITMQ_PUBLISHER_RETURNS}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+  endpoint:
+    health:
+      show-details: always
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_TRACING_ENDPOINT}
+
+
+

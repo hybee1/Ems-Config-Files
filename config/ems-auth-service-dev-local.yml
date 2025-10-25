@@ -1,5 +1,4 @@
-server:
-  port: ${AUTH_SERVER_PORT}
+
 
 logging:
   level:
@@ -11,11 +10,13 @@ spring:
 
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT}
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${random.int}
+        prefer-ip-address: true
+        register: true
 
 
   liquibase:
@@ -28,8 +29,8 @@ spring:
 
   datasource:
     url: ${AUTH_DB_URL}
-    username: ${AUTH_DB_USERNAME}
-    password: ${AUTH_DB_PASSWORD}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -42,6 +43,20 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST_NAME}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
+    listener:
+      simple:
+        concurrency: ${RABBITMQ_CONCURRENCY}
+        max-concurrency: ${RABBITMQ_MAX_CONCURRENCY}
+        acknowledge-mode: ${RABBITMQ_ACKNOWLEDGE_MODE}
+    publisher-confirm-type: ${RABBITMQ_PUBLISHER_CONFIRM_TYPE}
+    publisher-returns: ${RABBITMQ_PUBLISHER_RETURNS}
 
 management:
   tracing:
@@ -56,6 +71,10 @@ management:
     web:
       exposure:
         include: health,info
+
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_TRACING_ENDPOINT}
 
 
 
